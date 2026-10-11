@@ -1,0 +1,83 @@
+// BANCO PREPARADO a partir de tus 3 PDF (Sesiones 1, 2 y 3). Para añadir preguntas, copia un objeto y pégalo en QUIZ o VF (ver README).
+const TOPICS = [
+ {id:'alg', doc:'Sesión 1 · Introducción', pag:'2', t:'Problema, algoritmo y programa',
+  sum:'Problema = qué queremos resolver. Algoritmo = estrategia finita y precisa. Programa = implementación concreta en un lenguaje. La corrección va antes que la eficiencia, pero entre dos soluciones correctas el coste puede ser muy distinto.',
+  ex:'Problema: buscar un valor. Algoritmos: búsqueda secuencial o binaria (esta exige datos ordenados). Programa: su código en Python.',
+  defs:[['Algoritmo','Estrategia finita y precisa para resolver un problema.'],['Programa','Implementación concreta de un algoritmo en un lenguaje de programación.'],['Tamaño del problema (n)','Medida de la entrada: elementos de una lista, vértices de un grafo, caracteres de un texto…']]},
+ {id:'bucles', doc:'Sesión 1 · Introducción', pag:'3-4', t:'Bucles y crecimiento del trabajo',
+  sum:'Contar cuántas veces se ejecuta el cuerpo de un bucle da una primera idea del coste. Un bucle simple hace n; dos anidados completos n²; el triangular 0+1+…+(n−1) ≈ n²/2; el que duplica la variable hace ≈ log₂ n.',
+  ex:'for i in range(n): for j in range(i): … → n(n−1)/2 ejecuciones, cuadrático. i=1; while i<n: i*=2 → log₂ n iteraciones.',
+  defs:[['Crecimiento logarítmico','El número de iteraciones aumenta muy despacio al crecer n (se duplica o divide la variable en cada paso).'],['Notación O(·)','Expresa de forma compacta el orden de crecimiento del trabajo; no es tiempo exacto.']]},
+ {id:'tn', doc:'Sesión 2 · T(n) y O(·)', pag:'2-3', t:'T(n) y simplificación a O(·)',
+  sum:'T(n) es el conteo de una operación básica elegida (modelo de coste didáctico). Para pasar a O(·): quita constantes multiplicativas, quita términos de orden inferior y conserva el que crece más deprisa. Mantra: código → operación → conteo → T(n) → término dominante → O(·).',
+  ex:'T(n)=4n²+3n+8 → domina n² → O(n²). T(n)=n(n−1)/2 → O(n²).',
+  defs:[['T(n)','Número de veces que se ejecuta la operación básica elegida, en función del tamaño n.'],['Operación básica','Operación relevante que contamos de forma coherente en todo el análisis.'],['Término dominante','Término de T(n) que crece más deprisa cuando n es grande.']]},
+ {id:'patrones', doc:'Sesión 2 · T(n) y O(·)', pag:'4-11', t:'Patrones de bucles resueltos',
+  sum:'Secuenciales se suman (n+n=2n → O(n)); anidados se multiplican; un interior constante no da O(n²); range(0,n,2) hace n/2 → O(n); range(n*n) es O(n²) aunque haya un solo for; multiplicar por 2 o por 3 es O(log n); lineal×logarítmico = O(n log n).',
+  ex:'for i in range(n): for j in range(5) → 5n → O(n).',
+  defs:[['Bloques secuenciales','Sus costes se suman; domina el de mayor orden.'],['Bucles anidados','Sus conteos se multiplican (si el interior depende de i, aparece una suma).']]},
+ {id:'casos', doc:'Sesión 2 · T(n) y O(·)', pag:'12', t:'Mejor caso y peor caso',
+  sum:'Con salida temprana (return/break) el trabajo depende de la posición de los datos. En búsqueda lineal: mejor caso 1 comparación (O(1)), peor n (O(n)). En un if con dos ramas, el peor caso toma la de mayor coste.',
+  ex:'buscar(datos, objetivo): mejor O(1) si está el primero; peor O(n) si está el último o no está.',
+  defs:[['Mejor caso','Entrada que hace que el algoritmo realice menos trabajo.'],['Peor caso','Entrada que obliga a realizar el máximo trabajo posible.']]},
+ {id:'opt', doc:'Sesión 3 · Optimización', pag:'2-4', t:'Qué es optimizar',
+  sum:'Versión ingenua: primera solución correcta, punto de referencia. Mejora de implementación: reduce constantes (p. ej. salida temprana). Mejora algorítmica: cambia la organización del trabajo y puede cambiar el orden. Hay que conocer el coste oculto: x in lista es O(n), x in set es O(1) esperado.',
+  ex:'Sustituir x in lista por x in set convierte O(n·m) en O(n+m) esperado.',
+  defs:[['Versión ingenua','Solución simple y correcta usada como referencia; no significa incorrecta.'],['Coste esperado','Comportamiento habitual de set/dict bajo el modelo de tablas hash.'],['Coste amortizado','Una operación aislada puede ser cara, pero el coste medio de la secuencia es constante (list.append).']]},
+ {id:'patmej', doc:'Sesión 3 · Optimización', pag:'4-9', t:'Patrones de mejora y compromiso tiempo–memoria',
+  sum:'Cuatro patrones: salida temprana, recordar lo visto (set), preprocesar (dict de frecuencias) y reformular (complemento objetivo−x). Repetidos: O(n²)→O(n) esperado con O(n) memoria extra. Muchas consultas: O(qn)→O(n+q). No existe mejora gratuita.',
+  ex:'dos_suman: por cada x, ¿está objetivo−x en vistos? Una pasada, O(n) esperado, O(n) memoria.',
+  defs:[['Preprocesar','Pagar un coste inicial una vez para responder rápido muchas consultas.'],['Compromiso tiempo–memoria','Mejorar el tiempo suele requerir memoria adicional.']]}
+];
+const DIFS = [
+ ['O(n) y O(2n)','Ambos son lineales: las constantes multiplicativas se ignoran en O(·), aunque afecten al tiempo real.'],
+ ['T(n) y O(·)','T(n) es el conteo concreto bajo un modelo de coste; O(·) solo describe el crecimiento dominante. No son lo mismo.'],
+ ['Mejora de implementación y mejora algorítmica','La primera reduce constantes (salida temprana); la segunda cambia la estrategia y puede cambiar el orden (list → set).'],
+ ['Esperado y amortizado','Esperado: caso habitual en tablas hash. Amortizado: media sobre una secuencia de operaciones.'],
+ ['Mejor y peor caso','Dependen de la posición de los datos cuando hay salida temprana; el peor caso suele darse en O(·).']
+];
+// QUIZ: t = tema, d = dificultad (1 fácil, 2 media, 3 difícil), o = opciones A-D, a = índice correcto (0-3), e = explicación
+const QUIZ = [
+ {t:'alg',d:1,q:'¿Qué es un algoritmo?',o:['Un programa escrito en Python','Una estrategia finita y precisa para resolver un problema','El tiempo que tarda un programa','Un tipo de bucle'],a:1,e:'Algoritmo: estrategia finita y precisa. El programa es su implementación concreta; mezclarlos es el error típico.'},
+ {t:'alg',d:2,q:'¿Qué exige la búsqueda binaria frente a la secuencial?',o:['Que la lista sea corta','Que los datos estén ordenados','Que no haya repetidos','Usar recursión'],a:1,e:'Descarta la mitad del espacio en cada paso, y eso solo es válido con datos ordenados.'},
+ {t:'bucles',d:1,q:'for i in range(n): for j in range(n): procesar(i,j). ¿Cuántas ejecuciones?',o:['n','2n','n²','log n'],a:2,e:'Por cada una de las n iteraciones exteriores hay n interiores: n·n = n².'},
+ {t:'bucles',d:2,q:'i=1; while i<n: i*=2. ¿Cómo crece el número de iteraciones?',o:['Linealmente','Cuadráticamente','Logarítmicamente','Es constante'],a:2,e:'i se duplica en cada vuelta: k iteraciones con 2^k ≈ n, es decir ≈ log₂ n.'},
+ {t:'bucles',d:2,q:'for i in range(n): for j in range(i): ... ¿Total de ejecuciones?',o:['n²','n(n−1)/2','n log n','2n'],a:1,e:'El interior hace 0,1,…,n−1 iteraciones: suma n(n−1)/2, cuadrático.'},
+ {t:'tn',d:1,q:'Simplifica T(n)=4n²+3n+8:',o:['O(n)','O(n²)','O(8)','O(n³)'],a:1,e:'Se elimina la constante y los términos de orden inferior; domina n².'},
+ {t:'tn',d:2,q:'¿Qué es T(n) en esta asignatura?',o:['El tiempo exacto en segundos','El conteo de una operación básica elegida','Siempre el número de líneas','Lo mismo que O(n)'],a:1,e:'Es un modelo de coste didáctico: se cuenta una operación relevante de forma coherente. No es igual a O(·).'},
+ {t:'patrones',d:2,q:'for i in range(n): for j in range(5): x+=1. ¿Complejidad?',o:['O(n²)','O(n)','O(1)','O(log n)'],a:1,e:'El interior es constante: T(n)=5n, O(n). Dos bucles visibles no implican O(n²).'},
+ {t:'patrones',d:3,q:'for i in range(n*n): x+=1. ¿Complejidad?',o:['O(n)','O(n log n)','O(n²)','O(2n)'],a:2,e:'Hay un solo for, pero se ejecuta n² veces. Importa el número de iteraciones, no los for.'},
+ {t:'casos',d:1,q:'En la búsqueda lineal, ¿cuál es el mejor caso?',o:['n comparaciones','1 comparación: está el primero','log n comparaciones','n² comparaciones'],a:1,e:'Con salida temprana, si el objetivo es el primero se hace 1 comparación: O(1).'},
+ {t:'opt',d:2,q:'for x in a: if x in b: return True, con b lista de m elementos. Peor caso:',o:['O(n)','O(n+m)','O(nm)','O(m)'],a:2,e:'Coste oculto: x in b cuesta O(m) en una lista, y se hace hasta n veces.'},
+ {t:'opt',d:2,q:'¿Qué significa que x in set sea O(1) «esperado»?',o:['Que siempre tarda lo mismo','Es el comportamiento habitual bajo el modelo de tablas hash','Que la media de una secuencia es constante','Que usa poca memoria'],a:1,e:'«Esperado» = tablas hash. «Amortizado» es otro concepto (media sobre una secuencia, p. ej. append).'},
+ {t:'patmej',d:2,q:'Con set de vistos, repetidos pasa de O(n²) a O(n) esperado. ¿Precio?',o:['Ninguno','O(n) de memoria extra','Más comparaciones','Datos ordenados'],a:1,e:'No existe mejora gratuita: se intercambia memoria por tiempo.'},
+ {t:'patmej',d:3,q:'q consultas de frecuencia sobre n datos: recorrer cada vez vs. dict preconstruido:',o:['O(qn) frente a O(n+q) esperado','O(q) frente a O(n)','Ambas O(n)','O(n²) frente a O(q)'],a:0,e:'Recorrer cada vez cuesta n por consulta (qn). El dict cuesta n una vez más O(1) por consulta.'},
+ {t:'patrones',d:1,q:'for i in range(n): x+=1 seguido de otro for j in range(n): x+=1. ¿T(n)?',o:['n²','2n','n+1','log n'],a:1,e:'Los costes de bloques secuenciales se suman: n+n=2n, es decir O(n).'},
+ {t:'patrones',d:3,q:'Un bloque lineal (n) seguido de un doble bucle completo (n²). ¿Orden?',o:['O(n)','O(n²)','O(n³)','O(2n)'],a:1,e:'T(n)=n²+n; al sumar costes de distinto orden domina el que crece más deprisa.'},
+ {t:'bucles',d:1,q:'En un doble bucle completo, si n se multiplica por 10, el trabajo se multiplica aproximadamente por:',o:['10','20','100','1000'],a:2,e:'Trabajo n²: (10n)² = 100n².'},
+ {t:'casos',d:2,q:'¿Qué hace falta para hablar de caso promedio en una búsqueda lineal?',o:['Nada, es siempre n/2','Una hipótesis sobre la posición/distribución de los datos','Que la lista esté ordenada','Que n sea par'],a:1,e:'El caso promedio depende de la posición o distribución, por eso la sesión 2 no lo fija todavía.'},
+ {t:'opt',d:1,q:'¿Coste típico de s[i] en una list?',o:['O(n)','O(log n)','O(1)','O(n²)'],a:2,e:'El acceso por índice en una list es O(1); en cambio x in lista es O(n) en el peor caso.'},
+ {t:'patmej',d:2,q:'En dos_suman con set, ¿qué representa objetivo − x?',o:['La suma total','El valor que necesitamos haber visto ya para completar el objetivo','El índice de x','El tamaño del set'],a:1,e:'Es el complemento: reformular la pregunta evita probar todas las parejas.'},
+ {t:'tn',d:2,q:'¿Qué debe aparecer como mínimo en una respuesta de examen sobre complejidad?',o:['Solo O(n²)','Una justificación del conteo y del término dominante','Un tiempo medido en segundos','El código completo'],a:1,e:'No basta con escribir O(n²): hay que explicar qué se cuenta y por qué.'}
+];
+// VF: s = afirmación, v = ¿es verdadera?, fix = redacción verdadera (si es falsa), e = explicación
+const VF = [
+ {t:'alg',d:1,s:'La eficiencia siempre va antes que la corrección.',v:false,fix:'La corrección va antes que la eficiencia: un algoritmo rápido pero incorrecto no es útil.',e:'Primero debe dar respuestas correctas; después se compara el coste.'},
+ {t:'bucles',d:1,s:'Todo doble bucle realiza exactamente n² iteraciones.',v:false,fix:'No todo doble bucle hace n² iteraciones: hay que estudiar los límites del interior (p. ej. range(i) o range(5)).',e:'El triangular hace ≈ n²/2 y con interior constante solo n·5.'},
+ {t:'tn',d:1,s:'En O(·) se eliminan las constantes multiplicativas.',v:true,fix:'',e:'5n → O(n). Siguen afectando al tiempo real, pero no al orden.'},
+ {t:'tn',d:2,s:'T(n) y O(n) son exactamente lo mismo.',v:false,fix:'T(n) es el conteo bajo un modelo de coste; O(·) describe su crecimiento dominante.',e:'Error que el profesor quiere eliminar desde la sesión 2.'},
+ {t:'patrones',d:2,s:'range(0, n, 2) hace aproximadamente n/2 iteraciones, así que es O(n/2).',v:false,fix:'range(0, n, 2) hace ≈ n/2 iteraciones, pero se escribe O(n).',e:'Las constantes se ignoran: n/2 es lineal.'},
+ {t:'patrones',d:2,s:'Un while siempre es O(log n).',v:false,fix:'Un while es O(log n) solo si la variable cambia multiplicativamente; si avanza de uno en uno puede ser O(n).',e:'Depende de cómo se actualiza la variable.'},
+ {t:'casos',d:2,s:'Con un if dentro de un for, el algoritmo pasa a ser O(1).',v:false,fix:'La condición se evalúa para todos los elementos, así que el recorrido sigue siendo O(n).',e:'El if no elimina el recorrido.'},
+ {t:'casos',d:1,s:'La búsqueda lineal tiene peor caso O(n) y mejor caso O(1).',v:true,fix:'',e:'Mejor: está el primero. Peor: está el último o no está.'},
+ {t:'opt',d:2,s:'La salida temprana cambia siempre el peor O(·).',v:false,fix:'La salida temprana puede reducir T(n) en casos favorables, pero normalmente el peor caso sigue siendo O(n).',e:'Es una mejora de implementación real, aunque no cambie el peor orden.'},
+ {t:'opt',d:2,s:'Un único for en el que se usa x in lista es siempre O(n).',v:false,fix:'Un único for con x in lista de m elementos puede ser O(n·m), porque la pertenencia en lista cuesta O(m).',e:'No analices contando bucles visibles: analiza el coste de las operaciones dentro.'},
+ {t:'patmej',d:1,s:'Mejorar el tiempo con un set puede requerir memoria adicional.',v:true,fix:'',e:'Repetidos: O(n²)→O(n) esperado con O(n) memoria extra. No hay mejoras gratuitas.'},
+ {t:'patmej',d:3,s:'Para una única consulta de frecuencia, construir siempre un diccionario es lo mejor.',v:false,fix:'Para una sola consulta basta recorrer la lista (O(n)); el diccionario compensa con muchas consultas.',e:'Hay que comparar preparación, número de consultas y memoria.'},
+ {t:'tn',d:1,s:'O(n) significa que el programa tarda exactamente n segundos.',v:false,fix:'O(n) describe una tendencia de crecimiento lineal, no un tiempo exacto.',e:'Dos programas O(n) pueden tardar distinto, pero ambos escalan linealmente.'},
+ {t:'opt',d:1,s:'Una solución «ingenua» es necesariamente incorrecta.',v:false,fix:'Una solución ingenua es simple y correcta; sirve de referencia para mejorarla.',e:'Ingenua no significa incorrecta ni mala.'},
+ {t:'patrones',d:1,s:'Los costes de bloques secuenciales se suman.',v:true,fix:'',e:'n + n = 2n, que sigue siendo O(n).'},
+ {t:'opt',d:2,s:'x in set cuesta O(1) esperado, mientras que x in lista cuesta O(n) en el peor caso.',v:true,fix:'',e:'Es el coste oculto que cambia el análisis al sustituir una lista por un set.'},
+ {t:'patrones',d:2,s:'O(log₂ n) y O(log₃ n) son órdenes de crecimiento distintos.',v:false,fix:'Cambiar la base del logaritmo solo cambia una constante: ambos se escriben O(log n).',e:'Multiplicar por 2 o por 3 genera el mismo patrón logarítmico.'},
+ {t:'bucles',d:2,s:'Antes de paralelizar un bucle hay que estudiar las dependencias entre iteraciones.',v:true,fix:'',e:'Si salida[i] depende de salida[i−1], las iteraciones no pueden ejecutarse simultáneamente sin más.'}
+];

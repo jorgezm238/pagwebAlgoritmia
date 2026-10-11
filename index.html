@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Estudio de Algoritmia</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<aside id="menu">
+  <h1>📘 Algoritmia</h1>
+  <nav>
+    <button data-v="inicio" class="on">🏠 Inicio</button>
+    <button data-v="pdf">📄 Mis PDF</button>
+    <button data-v="teoria">📚 Teoría</button>
+    <button data-v="test">📝 Test A/B/C/D</button>
+    <button data-v="vf">✅ Verdadero/Falso</button>
+    <button data-v="intentos">📊 Intentos</button>
+    <button data-v="nb">🐍 Prácticas .ipynb</button>
+    <button data-v="ia">🤖 IA (opcional)</button>
+  </nav>
+  <button id="tema">🌙 Modo oscuro</button>
+</aside>
+<main>
+  <section id="inicio" class="vista">
+    <h2>Panel de estudio</h2>
+    <div id="stats" class="grid"></div>
+    <p class="nota">Las estadísticas se guardan en este navegador (localStorage).</p>
+    <button id="reset" class="sec">Borrar progreso</button>
+  </section>
+
+  <section id="pdf" class="vista" hidden>
+    <h2>Mis PDF</h2>
+    <p>Selecciona tus PDF. El texto se extrae en tu navegador con PDF.js (necesita Internet solo para cargar la librería desde el CDN).</p>
+    <input type="file" id="pdfs" accept=".pdf" multiple>
+    <div id="pdfLista"></div>
+    <input id="busca" placeholder="Buscar en el texto extraído…" hidden>
+    <div id="pdfRes"></div>
+  </section>
+
+  <section id="teoria" class="vista" hidden>
+    <h2>Teoría</h2>
+    <p>Carga tus PDF para estudiarlos aquí (la lista se comparte con la sección «Mis PDF»).</p>
+    <input type="file" id="pdfsT" accept=".pdf" multiple>
+    <div id="pdfListaT"></div>
+    <div class="tabs"><button data-t="res" class="on">Resúmenes</button><button data-t="def">Definiciones</button><button data-t="dif">Diferencias</button><button data-t="fc">Flashcards</button><button data-t="pdf">PDF cargados</button></div>
+    <div id="teoriaCont"></div>
+  </section>
+
+  <section id="test" class="vista" hidden><h2>Test tipo A/B/C/D</h2><div id="testRoot"></div></section>
+  <section id="vf" class="vista" hidden><h2>Verdadero o falso</h2><div id="vfRoot"></div></section>
+
+  <section id="intentos" class="vista" hidden><h2>Intentos</h2><p>Historial de tus tests: aprobados, suspensos y detalle de cada pregunta.</p><div id="intentosCont"></div></section>
+
+  <section id="nb" class="vista" hidden>
+    <h2>Prácticas Jupyter</h2>
+    <p>Carga uno o varios <code>.ipynb</code> y haz el notebook como en Jupyter: edita las celdas y ejecútalas. El código se ejecuta de verdad en tu navegador.</p>
+    <input type="file" id="nbFile" accept=".ipynb" multiple>
+    <div class="row"><label class="inl"><input type="checkbox" id="herr"> Ver explicaciones y ejercicios guiados (sin ejecutar)</label><label class="inl"><input type="checkbox" id="examen"> Modo examen práctico</label></div>
+    <div id="nbCont"></div>
+  </section>
+
+  <section id="ia" class="vista" hidden>
+    <h2>Funciones con IA (opcional, no activas)</h2>
+    <p>Generar preguntas nuevas, analizar la teoría automáticamente o explicar cualquier error requiere una API de IA, y eso exige un backend para no exponer claves. <b>No están implementadas ni simuladas.</b> Alternativa: añade preguntas al banco en <code>data.js</code> (ver README).</p>
+  </section>
+</main>
+<script src="data.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="script.js"></script>
+</body>
+</html>
